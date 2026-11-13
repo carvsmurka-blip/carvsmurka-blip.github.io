@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Space</title>
+<style>
+  html, body { margin: 0; height: 100%; }
+  body {
+    background:
+      radial-gradient(2px 2px at 20% 30%, #fff, transparent),
+      radial-gradient(2px 2px at 70% 20%, #fff, transparent),
+      radial-gradient(1px 1px at 40% 80%, #fff, transparent),
+      radial-gradient(2px 2px at 85% 65%, #fff, transparent),
+      radial-gradient(1px 1px at 10% 70%, #fff, transparent),
+      radial-gradient(ellipse at center, #1b1040 0%, #05020f 70%, #000 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #start {
+    background: #22c55e;
+    color: #fff;
+    font-size: 28px;
+    font-weight: bold;
+    padding: 18px 60px;
+    border: none;
+    border-radius: 50px;
+    box-shadow: 0 0 25px #22c55e;
+  }
+  #start:active { transform: scale(0.95); }
+</style>
+</head>
+<body>
+  <button id="start" onclick="alert('Go!')">&#1057;&#1058;&#1040;&#1056;&#1058;</button>
+</body>
+</html>
