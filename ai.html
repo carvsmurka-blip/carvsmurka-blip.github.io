@@ -442,8 +442,8 @@
   </div>
 
   <script>
-    // Обновлённая модель на gemini-3.8-flash
-    let API_KEY = localStorage.getItem("gemini_api_key") || "AIzaSyCfsn9ULipRiRF8X5cH-u6jtbaJ7axCLSg";
+    // Ключ берется из памяти телефона, в открытом коде его нет
+    let API_KEY = localStorage.getItem("gemini_api_key") || "";
     let MODEL = localStorage.getItem("gemini_model") || "gemini-3.8-flash";
     let chatHistory = [];
 
@@ -514,6 +514,12 @@
     }
 
     async function sendMessage() {
+      if (!API_KEY) {
+        alert("Сначала введи API-ключ! Нажми на оранжевую аватарку «Л» вверху.");
+        openSettings();
+        return;
+      }
+
       const text = userInput.value.trim();
       if (!text) return;
 
@@ -583,4 +589,5 @@
     }
   </script>
 </body>
-</html>
+      </html>
+  
