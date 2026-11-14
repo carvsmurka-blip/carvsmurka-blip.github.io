@@ -69,8 +69,8 @@
 <header>
   <h1>🤖 Мой ИИ-чат</h1>
   <div>
-    <button id="clearBtn">Очистить</button>
-    <button id="keyBtn">Ключ</button>
+    <button id="clearBtn" type="button">Очистить</button>
+    <button id="keyBtn" type="button">Ключ</button>
   </div>
 </header>
 
@@ -85,20 +85,20 @@
   <div class="card">
     <h2>Вставь ключ Gemini</h2>
     <p>Ключ сохранится только в твоём браузере на этом телефоне. В коде сайта его нет.</p>
-    <input id="keyInput" type="password" placeholder="AIza..." autocomplete="off">
-    <button id="saveKey">Сохранить</button>
+    <input id="keyInput" type="password" placeholder="Вставь ключ сюда" autocomplete="off">
+    <button id="saveKey" type="button">Сохранить</button>
   </div>
 </div>
 
 <script>
   var MODEL = "gemini-2.5-flash";
-  var chat = document.getElementById("chat");
+  var chatBox = document.getElementById("chat");
   var form = document.getElementById("form");
   var input = document.getElementById("input");
   var sendBtn = document.getElementById("send");
   var keybox = document.getElementById("keybox");
   var keyInput = document.getElementById("keyInput");
-  var history = [];
+  var messages = [];
 
   function getKey() {
     try { return localStorage.getItem("gemini_key") || ""; } catch (e) { return ""; }
@@ -113,8 +113,8 @@
     var d = document.createElement("div");
     d.className = "msg " + cls;
     d.textContent = text;
-    chat.appendChild(d);
-    chat.scrollTop = chat.scrollHeight;
+    chatBox.appendChild(d);
+    chatBox.scrollTop = chatBox.scrollHeight;
     return d;
   }
 
@@ -127,8 +127,8 @@
   };
   document.getElementById("keyBtn").onclick = showKeybox;
   document.getElementById("clearBtn").onclick = function () {
-    history = [];
-    chat.innerHTML = "";
+    messages = [];
+    chatBox.innerHTML = "";
     addMsg("Привет! Задай мне любой вопрос.", "bot");
   };
 
@@ -148,42 +148,41 @@
     input.value = "";
     input.style.height = "auto";
     sendBtn.disabled = true;
-    history.push({ role: "user", parts: [{ text: text }] });
-
     var wait = addMsg("Думаю...", "bot");
+
     try {
+      messages.push({ role: "user", parts: [{ text: text }] });
       var res = await fetch(
         "https://generativelanguage.googleapis.com/v1beta/models/" + MODEL + ":generateContent",
         {
           method: "POST",
           headers: { "Content-Type": "application/json", "x-goog-api-key": key },
-          body: JSON.stringify({ contents: history })
+          body: JSON.stringify({ contents: messages })
         }
       );
       var data = await res.json();
       if (!res.ok) {
-        var msg = (data.error && data.error.message) || "Ошибка " + res.status;
-        history.pop();
+        messages.pop();
+        var msg = (data.error && data.error.message) || ("Ошибка " + res.status);
         wait.className = "msg err";
         wait.textContent = "Ошибка: " + msg;
-        if (res.status === 400 || res.status === 403) {
-          wait.textContent += "\n\nПроверь ключ: нажми кнопку «Ключ» и вставь заново.";
-        }
       } else {
-        var answer = data.candidates && data.candidates[0] &&
-          data.candidates[0].content && data.candidates[0].content.parts
-          ? data.candidates[0].content.parts.map(function (p) { return p.text || ""; }).join("")
-          : "Пустой ответ. Попробуй переформулировать вопрос.";
-        history.push({ role: "model", parts: [{ text: answer }] });
+        var answer = "Пустой ответ. Попробуй переформулировать вопрос.";
+        if (data.candidates && data.candidates[0] && data.candidates[0].content &&
+            data.candidates[0].content.parts) {
+          answer = data.candidates[0].content.parts
+            .map(function (p) { return p.text || ""; }).join("");
+        }
+        messages.push({ role: "model", parts: [{ text: answer }] });
         wait.textContent = answer;
       }
     } catch (err) {
-      history.pop();
+      messages.pop();
       wait.className = "msg err";
-      wait.textContent = "Нет связи с сервером. Проверь интернет.";
+      wait.textContent = "Ошибка: " + err.message;
     }
     sendBtn.disabled = false;
-    chat.scrollTop = chat.scrollHeight;
+    chatBox.scrollTop = chatBox.scrollHeight;
   });
 
   addMsg("Привет! Задай мне любой вопрос.", "bot");
